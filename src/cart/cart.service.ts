@@ -55,9 +55,11 @@ export class CartService {
         data.product_variant_id,
       );
 
-    const existingCart = await this.GetProductVariantCart(
-      data.product_variant_id,
-    );
+    const existingCart =
+      await this.cartsRepository.GetExistingUserCartByVariantId(
+        user_id,
+        data.product_variant_id,
+      );
 
     if (existingCart) {
       data.quantity += existingCart.quantity;

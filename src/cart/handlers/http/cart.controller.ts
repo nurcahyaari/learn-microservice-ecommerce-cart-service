@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   InternalServerErrorException,
   Param,
   Patch,
@@ -74,29 +76,33 @@ export class CartController {
       );
 
       if (!resp.affected) {
-        return 'failed to delete cart';
+        throw new Error('failed to delete cart');
       }
 
       return 'success to delete cart';
     } catch (e) {
-      return e;
+      throw new HttpException('BadRequest', HttpStatus.BAD_REQUEST);
     }
   }
 
   @ApiBearerAuth('Authorization')
   @Delete('/:cart_id')
   async DeleteUserCart(@Param() param: CartRequestParam, @Request() req) {
-    const user = req.headers.user;
-    const resp = await this.cartService.DeleteCartById(
-      user.user_id,
-      param.cart_id,
-    );
+    try {
+      const user = req.headers.user;
+      const resp = await this.cartService.DeleteCartById(
+        user.user_id,
+        param.cart_id,
+      );
 
-    if (!resp.affected) {
-      return 'failed to delete cart';
+      if (!resp.affected) {
+        throw new Error('failed to delete cart');
+      }
+
+      return 'success to delete cart';
+    } catch (e) {
+      throw new HttpException('BadRequest', HttpStatus.BAD_REQUEST);
     }
-
-    return 'success to delete cart';
   }
 
   @ApiBearerAuth('Authorization')
@@ -107,7 +113,7 @@ export class CartController {
       await this.cartService.CommitDeleteCart(user.user_id);
       return 'success';
     } catch (e) {
-      return e;
+      throw new HttpException('BadRequest', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -122,7 +128,7 @@ export class CartController {
     } catch (e) {
       console.log('rollback failed');
       console.log(e);
-      return e;
+      throw new HttpException('BadRequest', HttpStatus.BAD_REQUEST);
     }
   }
 }
